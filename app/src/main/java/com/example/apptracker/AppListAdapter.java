@@ -16,9 +16,11 @@ import java.util.ArrayList;
 public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHolder> {
 
     private ArrayList<AppInfo> appInfos = new ArrayList<>();
+    private int size;
 
-    public AppListAdapter(ArrayList<AppInfo> appInfos) {
+    public AppListAdapter(ArrayList<AppInfo> appInfos, int size) {
         this.appInfos=appInfos;
+        this.size = size;
     }
 
     @NonNull
@@ -32,15 +34,15 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        AppInfo appInfo = appInfos.get(position);
-        holder.appName.setText(appInfo.getAppName());
-        holder.appImage.setImageDrawable(appInfo.getIcon());
-        holder.appTime.setText(appInfo.getTime());
+            AppInfo appInfo = appInfos.get(position);
+            holder.appName.setText(appInfo.getAppName());
+            holder.appImage.setImageDrawable(appInfo.getIcon());
+            holder.appTime.setText(appInfo.getTime());
     }
 
     @Override
     public int getItemCount() {
-        return appInfos.size();
+        return size;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

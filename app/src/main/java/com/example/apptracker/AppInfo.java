@@ -1,20 +1,56 @@
 package com.example.apptracker;
 
 import android.graphics.drawable.Drawable;
+import android.os.Parcel;
+import android.os.Parcelable;
 
+import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
-public class AppInfo {
+public class AppInfo implements Parcelable {
 
-    private String appName, time;
+    private String appName, time, packageName;
     private Drawable icon;
     private long millis;
+
+    protected AppInfo(Parcel in) {
+        appName = in.readString();
+        time = in.readString();
+        millis = in.readLong();
+        packageName = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(appName);
+        dest.writeString(time);
+        dest.writeLong(millis);
+        dest.writeString(packageName);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<AppInfo> CREATOR = new Creator<AppInfo>() {
+        @Override
+        public AppInfo createFromParcel(Parcel in) {
+            return new AppInfo(in);
+        }
+
+        @Override
+        public AppInfo[] newArray(int size) {
+            return new AppInfo[size];
+        }
+    };
 
     public long getMillis() {
         return millis;
     }
 
-    public AppInfo(String appName, long millis, Drawable icon) {
+    public AppInfo(String packageName, String appName, long millis, Drawable icon) {
+        this.packageName = packageName;
         this.appName=appName;
         this.millis=millis;
         this.icon=icon;
@@ -22,6 +58,10 @@ public class AppInfo {
                 TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)));
     }
 
+    public String getPackageName() {
+        return packageName;
+    }
+    
     public String getAppName() {
         return appName;
     }
