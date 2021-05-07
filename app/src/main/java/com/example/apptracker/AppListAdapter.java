@@ -42,7 +42,10 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return size;
+        if( appInfos.size() > size )
+            return size;
+        else
+            return appInfos.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
