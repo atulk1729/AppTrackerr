@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.TargetApi;
 import android.app.AppOpsManager;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
@@ -13,8 +14,10 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.provider.Settings;
 import android.view.View;
 
@@ -28,6 +31,8 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static int ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE = 5469;
+
     private MaterialButton limitButton;
     protected ArrayList<AppInfo> appInfos = new ArrayList<AppInfo>();
 
@@ -37,6 +42,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //SYSTEM_EXIT_WINDOW Permission to get back to home screen from background service (For android 10 and higher)
+        checkPermission();
+
+        //Permission for UsageStats Manager
         if(checkForPermission(this)) checkForPermission(this);
         UsageStatsManager usageStatsManager = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
 
@@ -68,6 +77,27 @@ public class MainActivity extends AppCompatActivity {
         AppListAdapter adapter = new AppListAdapter(appInfos, 5);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+
+        //Background service to detect apps from background(When AppTracker is closed)
+        Intent backgroundService = new Intent(getApplicationContext(),BackgroundService.class);
+        startService(backgroundService);
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE) {
+            if (!Settings.canDrawOverlays(this)) {
+                // You don't have permission
+                checkPermission();
+            } else {
+
+            }
+
+        }
+
     }
 
     public void setLimitButton( View v ) {
@@ -111,5 +141,15 @@ public class MainActivity extends AppCompatActivity {
             // This package may be gone.
         }
         return icon;
+    }
+
+    public void checkPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.canDrawOverlays(this)) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:" + getPackageName()));
+                startActivityForResult(intent, ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE);
+            }
+        }
     }
 }
