@@ -24,6 +24,9 @@ public class BackgroundService extends Service {
     public Context context = this;
     public Handler handler = null;
     public static Runnable runnable = null;
+    public SharedPreferences sharedpreferences = null;
+    public String MyPREFERENCES = "AppInfos";
+    public ArrayList<AppInfo> appInfos = new ArrayList<>();
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -34,18 +37,22 @@ public class BackgroundService extends Service {
     @Override
     public void onCreate() {
         Toast.makeText(this, "Service created!", Toast.LENGTH_LONG).show();
+        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, -1);
+        long start = calendar.getTimeInMillis();
+        long end = System.currentTimeMillis();
+        UsageStatsManager usageStatsManager = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
+        Map<String, UsageStats> stats = usageStatsManager.queryAndAggregateUsageStats(start, end);
 
         handler = new Handler();
 
 
         runnable = new Runnable() {
             public void run() {
-                Toast.makeText(context, "Service is still running", Toast.LENGTH_LONG).show();
                 ActivityManager am=(ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
                 String runningApp = retriveNewApp();
-                Toast.makeText(context, ""+runningApp, Toast.LENGTH_SHORT).show();
-                if(runningApp.equals("com.android.chrome")){
-                    Toast.makeText(context, "Found ya!!!", Toast.LENGTH_SHORT).show();
+                if(sharedpreferences.contains(runningApp) && stats.get(runningApp).getTotalTimeInForeground()>sharedpreferences.getLong(runningApp,0)){
 
                     Intent startMain = new Intent(Intent.ACTION_MAIN);
                     startMain.addCategory(Intent.CATEGORY_HOME);

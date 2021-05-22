@@ -40,6 +40,7 @@ public class AppSelectorAdapter extends RecyclerView.Adapter<AppSelectorAdapter.
         holder.appName.setText(appInfo.getAppName());
         holder.appImage.setImageDrawable(appInfo.getIcon());
         holder.appTime.setText(appInfo.getTime());
+        holder.packageName = appInfo.getPackageName();
     }
 
     @Override
@@ -54,6 +55,7 @@ public class AppSelectorAdapter extends RecyclerView.Adapter<AppSelectorAdapter.
         public ImageView appImage;
         public TextView appName, appTime;
         public CardView cardView;
+        public String packageName;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             this.appImage = itemView.findViewById(R.id.app_logo);
@@ -66,7 +68,7 @@ public class AppSelectorAdapter extends RecyclerView.Adapter<AppSelectorAdapter.
         @Override
         public void onClick(View v) {
             Intent intent = new Intent(context, LimitSetterActivity.class);
-            intent.putExtra("AppName", appName.getText());
+            intent.putExtra("AppName", packageName);
             context.startActivity(intent);
         }
     }

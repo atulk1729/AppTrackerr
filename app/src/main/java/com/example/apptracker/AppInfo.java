@@ -11,7 +11,8 @@ public class AppInfo implements Parcelable {
 
     private String appName, time, packageName;
     private Drawable icon;
-    private long millis;
+    public long millis;
+    public int launchCount;
 
     protected AppInfo(Parcel in) {
         appName = in.readString();
@@ -58,10 +59,16 @@ public class AppInfo implements Parcelable {
                 TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)));
     }
 
+    public AppInfo(String packageName, String appName, Drawable icon) {
+        this.packageName = packageName;
+        this.appName=appName;
+        this.icon=icon;
+    }
+
     public String getPackageName() {
         return packageName;
     }
-    
+
     public String getAppName() {
         return appName;
     }
@@ -71,6 +78,8 @@ public class AppInfo implements Parcelable {
     }
 
     public String getTime() {
+        time = String.format("%02d h %02d m", TimeUnit.MILLISECONDS.toHours(millis),
+                TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)));
         return time;
     }
 
@@ -85,4 +94,5 @@ public class AppInfo implements Parcelable {
     public void setIcon(Drawable icon) {
         this.icon = icon;
     }
+
 }
