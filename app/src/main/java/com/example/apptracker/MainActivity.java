@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -21,6 +22,13 @@ import android.os.Parcelable;
 import android.provider.Settings;
 import android.view.View;
 
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.PercentFormatter;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
@@ -35,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
     private MaterialButton limitButton;
     protected ArrayList<AppInfo> appInfos = new ArrayList<AppInfo>();
+    private PieChart pieChart;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -72,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        pieChart = findViewById(R.id.main_pieChart);
         RecyclerView recyclerView = findViewById(R.id.appListRecView);
         AppListAdapter adapter = new AppListAdapter(appInfos, 5);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -81,6 +90,60 @@ public class MainActivity extends AppCompatActivity {
         //Background service to detect apps from background(When AppTracker is closed)
         Intent backgroundService = new Intent(getApplicationContext(),BackgroundService.class);
         startService(backgroundService);
+
+        setupPieChart();
+        loadPieChartData();
+    }
+
+    private void setupPieChart() {
+        pieChart.setDrawHoleEnabled(true);
+        pieChart.setUsePercentValues(true);
+        pieChart.setEntryLabelTextSize(0);
+        pieChart.setEntryLabelColor(Color.BLACK);
+        pieChart.setCenterText("App Usage Stats");
+        pieChart.setCenterTextSize(24);
+        pieChart.getDescription().setEnabled(false);
+
+        Legend l = pieChart.getLegend();
+        l.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+        l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
+        l.setOrientation(Legend.LegendOrientation.VERTICAL);
+        l.setDrawInside(false);
+        l.setEnabled(true);
+    }
+
+    private void loadPieChartData() {
+        ArrayList<PieEntry> entries = new ArrayList<>();
+        long others = 0;
+        int count = 0;
+        for(AppInfo x : appInfos) {
+            if( count < 5 ) {
+                entries.add(new PieEntry(x.getMillis(), x.getAppName()));
+                count++;
+            }
+            else others += x.getMillis();
+        }
+        entries.add(new PieEntry(others, "others"));
+
+        ArrayList<Integer> colors = new ArrayList<>();
+        for( int color: ColorTemplate.MATERIAL_COLORS) {
+            colors.add(color);
+        }
+        for( int color: ColorTemplate.VORDIPLOM_COLORS) {
+            colors.add(color);
+        }
+
+        PieDataSet dataSet = new PieDataSet(entries, "Apps");
+        dataSet.setColors(colors);
+
+        PieData data = new PieData(dataSet);
+        data.setDrawValues(true);
+        data.setValueFormatter(new PercentFormatter(pieChart));
+        data.setValueTextSize(12f);
+        data.setValueTextColor(Color.BLACK);
+
+        pieChart.setData(data);
+        pieChart.invalidate();
     }
 
     @TargetApi(Build.VERSION_CODES.M)
