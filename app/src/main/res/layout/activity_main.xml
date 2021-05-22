@@ -19,10 +19,16 @@
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
+                android:layout_height="500dp"
                 android:clickable="true"
                 android:focusable="true"
                 app:cardElevation="10dp">
+
+                <com.github.mikephil.charting.charts.PieChart
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/main_pieChart"/>
+
 
 
             </androidx.cardview.widget.CardView>
