@@ -14,10 +14,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.formatter.IValueFormatter;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.github.mikephil.charting.utils.ViewPortHandler;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -129,32 +136,6 @@ public class LimitSetterActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void setBarGraph(ArrayList<Float> pastSevenDaysUse) {
         BarChart barChart = findViewById(R.id.fragment_verticalbarchart_chart);
-        ArrayList<BarEntry> entries = new ArrayList<>();
-        for(int i=0; i<7; i++) {
-            entries.add(new BarEntry(pastSevenDaysUse.get(i),i));
-        }
 
-        BarDataSet bardataset = new BarDataSet(entries, "Hours");
-
-        String day = LocalDate.now().getDayOfWeek().name();
-        String days[] = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
-        int curr_day_index=0;
-        for(int i=0; i<7; i++) {
-            if(days[i].toUpperCase().equals(day)) curr_day_index=i;
-        }
-        Toast.makeText(this, ""+day+" "+curr_day_index, Toast.LENGTH_SHORT).show();
-        ArrayList<String> labels = new ArrayList<String>();
-        for(int i=curr_day_index+1; i<7; i++) {
-            labels.add(days[i].substring(0,1));
-        }
-        for(int i=0; i<=curr_day_index; i++) {
-            labels.add(days[i].substring(0,1));
-        }
-
-        BarData data = new BarData(labels, bardataset);
-        barChart.setData(data); // set the data and list of labels into chart
-        barChart.setDescription("App usage over past 7 days");
-        bardataset.setColors(Collections.singletonList(ColorTemplate.getHoloBlue()));
-        barChart.animateY(2000);
     }
 }

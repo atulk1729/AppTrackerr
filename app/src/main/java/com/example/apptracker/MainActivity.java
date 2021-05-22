@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.TargetApi;
 import android.app.AppOpsManager;
+import android.app.usage.UsageEvents;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
@@ -35,6 +36,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -56,19 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Permission for UsageStats Manager
         if(checkForPermission(this)) checkForPermission(this);
-        UsageStatsManager usageStatsManager = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DATE, -1);
-        long start = calendar.getTimeInMillis();
-        long end = System.currentTimeMillis();
-        Map<String, UsageStats> stats = usageStatsManager.queryAndAggregateUsageStats(start, end);
-
-        for(Map.Entry<String, UsageStats> entry: stats.entrySet()) {
-            UsageStats us = entry.getValue();
-            AppInfo aI = new AppInfo(us.getPackageName(), getAppLable(this,us.getPackageName()),us.getTotalTimeInForeground(),getIcon(this,us.getPackageName()));
-            appInfos.add(aI);
-        }
+        getUsageStatistics();
 
         Collections.sort(appInfos, new Comparator<AppInfo>() {
             @Override
@@ -219,5 +210,65 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE);
             }
         }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    void getUsageStatistics() {
+
+        UsageEvents.Event currentEvent;
+        List<UsageEvents.Event> allEvents = new ArrayList<>();
+        HashMap<String, AppInfo> map = new HashMap <String, AppInfo> ();
+
+        long currTime = System.currentTimeMillis();
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, 0);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        long startTime = calendar.getTimeInMillis();
+
+        UsageStatsManager mUsageStatsManager =  (UsageStatsManager)
+                this.getSystemService(Context.USAGE_STATS_SERVICE);
+
+        assert mUsageStatsManager != null;
+        UsageEvents usageEvents = mUsageStatsManager.queryEvents(startTime, currTime);
+
+//capturing all events in a array to compare with next element
+
+        while (usageEvents.hasNextEvent()) {
+            currentEvent = new UsageEvents.Event();
+            usageEvents.getNextEvent(currentEvent);
+            if (currentEvent.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND ||
+                    currentEvent.getEventType() == UsageEvents.Event.MOVE_TO_BACKGROUND) {
+                allEvents.add(currentEvent);
+                String key = currentEvent.getPackageName();
+// taking it into a collection to access by package name
+                if (map.get(key)==null)
+                    map.put(key,new AppInfo(key,getAppLable(this,key),getIcon(this,key)));
+            }
+        }
+
+//iterating through the arraylist
+        for (int i=0;i<allEvents.size()-1;i++){
+            UsageEvents.Event E0=allEvents.get(i);
+            UsageEvents.Event E1=allEvents.get(i+1);
+
+//for launchCount of apps in time range
+            if (!E0.getPackageName().equals(E1.getPackageName()) && E1.getEventType()==1){
+// if true, E1 (launch event of an app) app launched
+                map.get(E1.getPackageName()).launchCount++;
+            }
+
+//for UsageTime of apps in time range
+            if (E0.getEventType()==1 && E1.getEventType()==2
+                    && E0.getClassName().equals(E1.getClassName())){
+                long diff = E1.getTimeStamp()-E0.getTimeStamp();
+                map.get(E0.getPackageName()).millis+= diff;
+            }
+        }
+//transferred final data into modal class object
+        appInfos = new ArrayList<>(map.values());
+
     }
 }
