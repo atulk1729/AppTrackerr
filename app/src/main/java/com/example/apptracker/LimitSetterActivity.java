@@ -7,6 +7,7 @@ import android.app.usage.UsageEvents;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,6 +37,7 @@ import java.util.Map;
 
 public class LimitSetterActivity extends AppCompatActivity {
 
+    private BarChart barChart;
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +45,8 @@ public class LimitSetterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_limit_setter);
 
         ArrayList<Float> pastSevenDaysUse = this.getWeekData(getIntent().getStringExtra("AppName"));
-        setBarGraph(pastSevenDaysUse);
-
+        barChart = findViewById(R.id.verticalbarchart_chart);
+        loadBarGraph(pastSevenDaysUse);
 
     }
 
@@ -134,8 +136,21 @@ public class LimitSetterActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void setBarGraph(ArrayList<Float> pastSevenDaysUse) {
-        BarChart barChart = findViewById(R.id.fragment_verticalbarchart_chart);
+    public void loadBarGraph(ArrayList<Float> pastSevenDaysUse) {
+        ArrayList<BarEntry> entries = new ArrayList<>();
+        for( int i = 0; i < pastSevenDaysUse.size(); i++ ) {
+            entries.add(new BarEntry(i+1,pastSevenDaysUse.get(i)));
+        }
+        BarDataSet barDataSet = new BarDataSet(entries, "bar graph");
+        barDataSet.setColors(ColorTemplate.MATERIAL_COLORS);
+        barDataSet.setValueTextColor(Color.BLACK);
+        barDataSet.setValueTextSize(12f);
 
+        BarData barData = new BarData(barDataSet);
+
+        barChart.setData(barData);
+        barChart.getDescription().setEnabled(false);
+        barChart.setFitBars(true);
+        barChart.animateY(2000);
     }
 }
