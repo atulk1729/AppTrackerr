@@ -78,9 +78,9 @@ public class LimitSetterActivity extends AppCompatActivity {
         long end = System.currentTimeMillis();
         HashMap<String,AppUsageInfo> stats = getUsageStatistics(start, end);
         float time = (float) stats.get(packageName).timeInForeground/3600000;
-        totalTime+=time;
+        //totalTime+=time;
         timeOfSevenDays.add(time);
-        timeOfSevenDays.add(totalTime);
+        //timeOfSevenDays.add(totalTime);
         return timeOfSevenDays;
     }
 
@@ -137,6 +137,10 @@ public class LimitSetterActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void loadBarGraph(ArrayList<Float> pastSevenDaysUse) {
+        Calendar calendar = Calendar.getInstance();
+        int day = calendar.get(Calendar.DAY_OF_WEEK)-1;
+        String[] days = new String[] { "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT" };
+
         ArrayList<BarEntry> entries = new ArrayList<>();
         for( int i = 0; i < pastSevenDaysUse.size(); i++ ) {
             entries.add(new BarEntry(i+1,pastSevenDaysUse.get(i)));
@@ -148,9 +152,26 @@ public class LimitSetterActivity extends AppCompatActivity {
 
         BarData barData = new BarData(barDataSet);
 
+        ArrayList<String> xAxisLabel = new ArrayList<>();
+        for( int i = 0; i < 7; i++ ) {
+            day = day % 7;
+            xAxisLabel.add(days[day]);
+            day++;
+        }
+        Collections.reverse(xAxisLabel);
+        XAxis xAxis = barChart.getXAxis();
+        xAxis.setAxisMinimum(0);
+        xAxis.setValueFormatter(new ValueFormatter(){
+            public String getFormattedValue(float value) {
+                if( value > 0 && value <= 7 ) return xAxisLabel.get((int)value-1);
+                else return "";
+            }
+        });
         barChart.setData(barData);
+        barChart.setDrawValueAboveBar(false);
         barChart.getDescription().setEnabled(false);
         barChart.setFitBars(true);
         barChart.animateY(2000);
+        barChart.invalidate();
     }
 }
