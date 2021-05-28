@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.Settings;
 import android.view.View;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
@@ -39,6 +40,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -218,6 +220,7 @@ public class MainActivity extends AppCompatActivity {
         UsageEvents.Event currentEvent;
         List<UsageEvents.Event> allEvents = new ArrayList<>();
         HashMap<String, AppInfo> map = new HashMap <String, AppInfo> ();
+        HashMap<String, Long> flag = new HashMap<String, Long>();
 
         long currTime = System.currentTimeMillis();
         Calendar calendar = Calendar.getInstance();
@@ -234,8 +237,7 @@ public class MainActivity extends AppCompatActivity {
         assert mUsageStatsManager != null;
         UsageEvents usageEvents = mUsageStatsManager.queryEvents(startTime, currTime);
 
-//capturing all events in a array to compare with next element
-
+        //capturing all events in a array to compare with next element
         while (usageEvents.hasNextEvent()) {
             currentEvent = new UsageEvents.Event();
             usageEvents.getNextEvent(currentEvent);
@@ -243,31 +245,31 @@ public class MainActivity extends AppCompatActivity {
                     currentEvent.getEventType() == UsageEvents.Event.MOVE_TO_BACKGROUND) {
                 allEvents.add(currentEvent);
                 String key = currentEvent.getPackageName();
-// taking it into a collection to access by package name
-                if (map.get(key)==null)
-                    map.put(key,new AppInfo(key,getAppLable(this,key),getIcon(this,key)));
+                // taking it into a collection to access by package name
+                if (map.get(key)==null) {
+                    map.put(key, new AppInfo(key, getAppLable(this, key), getIcon(this, key)));
+                    flag.put(key,-1L);
+                }
             }
         }
 
-//iterating through the arraylist
-        for (int i=0;i<allEvents.size()-1;i++){
-            UsageEvents.Event E0=allEvents.get(i);
-            UsageEvents.Event E1=allEvents.get(i+1);
+        //iterating through the arraylist
+        for (int i=0;i<allEvents.size();i++){
+            UsageEvents.Event E = allEvents.get(i);
 
-//for launchCount of apps in time range
-            if (!E0.getPackageName().equals(E1.getPackageName()) && E1.getEventType()==1){
-// if true, E1 (launch event of an app) app launched
-                map.get(E1.getPackageName()).launchCount++;
+            if(E.getEventType()==1) {
+                flag.put(E.getPackageName(),E.getTimeStamp());
             }
 
-//for UsageTime of apps in time range
-            if (E0.getEventType()==1 && E1.getEventType()==2
-                    && E0.getClassName().equals(E1.getClassName())){
-                long diff = E1.getTimeStamp()-E0.getTimeStamp();
-                map.get(E0.getPackageName()).millis+= diff;
+            if(E.getEventType()==2) {
+                long lasttime = flag.get(E.getPackageName());
+                long diff = E.getTimeStamp() - lasttime;
+                if(lasttime==-1L) diff = E.getTimeStamp() - startTime;
+                map.get(E.getPackageName()).millis+=diff;
+                flag.put(E.getPackageName(),E.getTimeStamp());
             }
         }
-//transferred final data into modal class object
+        //transferred final data into modal class object
         appInfos = new ArrayList<>(map.values());
 
     }

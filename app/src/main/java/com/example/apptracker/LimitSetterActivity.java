@@ -140,9 +140,7 @@ public class LimitSetterActivity extends AppCompatActivity {
             calendar.set(Calendar.MILLISECOND, 0);
             long start = calendar.getTimeInMillis();
             long end = start+24*3600000;
-            HashMap<String,AppUsageInfo> stats = getUsageStatistics(start, end);
-            float time = 0;
-            if(stats.get(packageName)!=null) time = (float) stats.get(packageName).timeInForeground/3600000;
+            float time = (float) getRunningTime(packageName,start,end)/3600000;
             timeOfSevenDays.add(time);
         }
         Calendar calendar = Calendar.getInstance();
@@ -153,8 +151,7 @@ public class LimitSetterActivity extends AppCompatActivity {
         calendar.set(Calendar.MILLISECOND, 0);
         long start = calendar.getTimeInMillis();
         long end = System.currentTimeMillis();
-        HashMap<String,AppUsageInfo> stats = getUsageStatistics(start, end);
-        float time = (float) stats.get(packageName).timeInForeground/3600000;
+        float time = (float) getRunningTime(packageName,start,end)/3600000;
         //totalTime+=time;
         timeOfSevenDays.add(time);
         //timeOfSevenDays.add(totalTime);
@@ -171,29 +168,25 @@ public class LimitSetterActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    HashMap<String,AppUsageInfo> getUsageStatistics(long startTime, long endTime) {
+    long getRunningTime( String runningApp, long startTime, long currTime ) {
 
+        long runningTime = 0;
         UsageEvents.Event currentEvent;
         List<UsageEvents.Event> allEvents = new ArrayList<>();
-        HashMap<String, AppUsageInfo> map = new HashMap <String, AppUsageInfo> ();
 
         UsageStatsManager mUsageStatsManager =  (UsageStatsManager)
                 this.getSystemService(Context.USAGE_STATS_SERVICE);
 
         assert mUsageStatsManager != null;
-        UsageEvents usageEvents = mUsageStatsManager.queryEvents(startTime, endTime);
+        UsageEvents usageEvents = mUsageStatsManager.queryEvents(startTime, currTime);
 
         //capturing all events in a array to compare with next element
         while (usageEvents.hasNextEvent()) {
             currentEvent = new UsageEvents.Event();
             usageEvents.getNextEvent(currentEvent);
-            if (currentEvent.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND ||
-                    currentEvent.getEventType() == UsageEvents.Event.MOVE_TO_BACKGROUND) {
+            if ((currentEvent.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND ||
+                    currentEvent.getEventType() == UsageEvents.Event.MOVE_TO_BACKGROUND) && currentEvent.getPackageName().equals(runningApp)) {
                 allEvents.add(currentEvent);
-                String key = currentEvent.getPackageName();
-                // taking it into a collection to access by package name
-                if (map.get(key)==null)
-                    map.put(key,new AppUsageInfo(key));
             }
         }
 
@@ -202,14 +195,17 @@ public class LimitSetterActivity extends AppCompatActivity {
             UsageEvents.Event E0=allEvents.get(i);
             UsageEvents.Event E1=allEvents.get(i+1);
 
+
             //for UsageTime of apps in time range
             if (E0.getEventType()==1 && E1.getEventType()==2
                     && E0.getClassName().equals(E1.getClassName())){
                 long diff = E1.getTimeStamp()-E0.getTimeStamp();
-                map.get(E0.getPackageName()).timeInForeground+= diff;
+                runningTime += diff;
             }
         }
-        return map;
+        // this will add the present running time of the app
+        runningTime += ( currTime - allEvents.get( allEvents.size()-1 ).getTimeStamp());
+        return runningTime;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -219,7 +215,7 @@ public class LimitSetterActivity extends AppCompatActivity {
         String[] days = new String[] { "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT" };
 
         ArrayList<BarEntry> entries = new ArrayList<>();
-        for( int i = 0; i < pastSevenDaysUse.size(); i++ ) {
+        for( int i = 0; i < 7; i++ ) {
             entries.add(new BarEntry(i+1,pastSevenDaysUse.get(i)));
         }
         BarDataSet barDataSet = new BarDataSet(entries, "bar graph");

@@ -55,8 +55,10 @@ public class AppInfo implements Parcelable {
         this.appName=appName;
         this.millis=millis;
         this.icon=icon;
-        this.time = String.format("%02d h %02d m", TimeUnit.MILLISECONDS.toHours(millis),
-                TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)));
+        long hour = millis/3600000;
+        long min = (millis/60000)%60;
+        if(hour==0L) this.time = min + " m";
+        else this.time = hour + " h " + min + " m";
     }
 
     public AppInfo(String packageName, String appName, Drawable icon) {
@@ -78,8 +80,10 @@ public class AppInfo implements Parcelable {
     }
 
     public String getTime() {
-        time = String.format("%02d h %02d m", TimeUnit.MILLISECONDS.toHours(millis),
-                TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)));
+        long hour = millis/3600000;
+        long min = (millis/60000)%60;
+        if(hour==0L) time = min + " m";
+        else time = hour + " h " + min + " m";
         return time;
     }
 
