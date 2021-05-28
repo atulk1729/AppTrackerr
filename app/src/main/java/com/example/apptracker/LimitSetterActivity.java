@@ -7,12 +7,16 @@ import android.app.usage.UsageEvents;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.XAxis;
@@ -37,17 +41,90 @@ import java.util.Map;
 
 public class LimitSetterActivity extends AppCompatActivity {
 
+    private String appPackageName;
     private BarChart barChart;
+    private EditText hoursEditText;
+    private EditText minutesEditText;
+    private ToggleButton toggleButton;
+    private SharedPreferences sharedPreferences = null;
+    private String MyPREFERENCES = "AppInfos";
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_limit_setter);
 
-        ArrayList<Float> pastSevenDaysUse = this.getWeekData(getIntent().getStringExtra("AppName"));
+        appPackageName = getIntent().getStringExtra("AppName");
+        ArrayList<Float> pastSevenDaysUse = this.getWeekData(appPackageName);
         barChart = findViewById(R.id.verticalbarchart_chart);
         loadBarGraph(pastSevenDaysUse);
 
+        hoursEditText = findViewById(R.id.hoursEditText);
+        minutesEditText = findViewById(R.id.minutesEditText);
+        toggleButton = findViewById(R.id.toggleButton);
+
+        sharedPreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+
+    }
+
+    protected void onResume() {
+        super.onResume();
+        sharedPreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        if( sharedPreferences.contains(appPackageName) ) {
+            long milli = sharedPreferences.getLong(appPackageName, 0);
+            int hours = (int)(milli/3600000);
+            int minutes = (int)((milli/60000) % 60);
+            hoursEditText.setText("" + hours);
+            minutesEditText.setText("" + minutes);
+            hoursEditText.setEnabled(false);
+            minutesEditText.setEnabled(false);
+            toggleButton.setChecked(true);
+        }
+    }
+
+    public void onToggleClick( View v ) {
+
+        if( toggleButton.isChecked() ) {
+            if( checkValid() ) {
+                int hour = Integer.parseInt(hoursEditText.getText().toString());
+                int minute = Integer.parseInt(minutesEditText.getText().toString());
+                long milli = (hour * 60 + minute) * 60000;
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putLong(appPackageName, milli);
+                editor.apply();
+                hoursEditText.setEnabled(false);
+                minutesEditText.setEnabled(false);
+                Toast.makeText(this, "limit set successfully", Toast.LENGTH_LONG).show();
+            }
+        }
+        else {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.remove(appPackageName);
+            editor.apply();
+            hoursEditText.setEnabled(true);
+            minutesEditText.setEnabled(true);
+        }
+
+    }
+
+    public boolean checkValid() {
+        if( hoursEditText.getText().toString().equals("") || minutesEditText.getText().toString().equals("") ) {
+            Toast.makeText(this, "Enter value in the fields", Toast.LENGTH_LONG).show();
+            toggleButton.setChecked(false);
+            return false;
+        }
+        if( Integer.parseInt(hoursEditText.getText().toString()) > 23 ) {
+            Toast.makeText(this, "Enter value from 0 to 23 in the hours fields", Toast.LENGTH_LONG).show();
+            toggleButton.setChecked(false);
+            return false;
+        }
+        if( Integer.parseInt(minutesEditText.getText().toString()) > 59 ) {
+            Toast.makeText(this, "Enter value from 0 to 59 in the minutes fields", Toast.LENGTH_LONG).show();
+            toggleButton.setChecked(false);
+            return false;
+        }
+        return true;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
