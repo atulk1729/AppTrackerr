@@ -37,62 +37,40 @@
                     android:id="@+id/materialTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="30dp"
+                    android:textColor="@color/black"
+                    android:padding="15dp"
                     android:text="Enter the limit"
-                    android:textSize="20sp"
+                    android:textSize="25sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/hoursTextView"
+
+                <TimePicker
+                    android:id="@+id/timePicker"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:text="HOURS"
-                    app:layout_constraintEnd_toStartOf="@+id/hoursEditText"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/materialTextView" />
-
-                <EditText
-                    android:id="@+id/hoursEditText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:inputType="numberDecimal"
-                    app:layout_constraintBottom_toBottomOf="@+id/hoursTextView"
+                    android:layout_marginTop="30dp"
+                    android:timePickerMode="spinner"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/hoursTextView" />
-
-                <TextView
-                    android:id="@+id/minutesTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="40dp"
-                    android:text="MINUTES"
-                    app:layout_constraintEnd_toStartOf="@+id/minutesEditText"
+                    app:layout_constraintHorizontal_bias="0.496"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/hoursTextView" />
+                    app:layout_constraintTop_toBottomOf="@+id/materialTextView"
+                    android:background="@color/cardview_shadow_start_color" />
 
-                <EditText
-                    android:id="@+id/minutesEditText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:inputType="numberDecimal"
-                    app:layout_constraintBottom_toBottomOf="@+id/minutesTextView"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/minutesTextView" />
-
-                <ToggleButton
+                <androidx.appcompat.widget.AppCompatToggleButton
                     android:id="@+id/toggleButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:onClick="onToggleClick"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/minutesEditText" />
+                    app:layout_constraintTop_toBottomOf="@+id/timePicker"
+                    android:fontFamily="sans-serif-black"/>
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>
