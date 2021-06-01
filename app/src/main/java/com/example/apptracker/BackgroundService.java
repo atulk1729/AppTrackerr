@@ -1,15 +1,21 @@
 package com.example.apptracker;
 
 import android.app.ActivityManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.app.usage.UsageEvents;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.*;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.*;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -55,17 +61,38 @@ public class BackgroundService extends Service {
                     calendar.set(Calendar.MINUTE, 0);
                     calendar.set(Calendar.SECOND, 0);
                     calendar.set(Calendar.MILLISECOND, 0);
-                    long start = calendar.getTimeInMillis();
-                    long end = System.currentTimeMillis();
                     long runningTime = getRunningTime(runningApp);
+                    long timeLimit = sharedpreferences.getLong(runningApp,0);
 
-                    if(runningTime > sharedpreferences.getLong(runningApp,0)) {
-                        Intent startMain = new Intent(Intent.ACTION_MAIN);
-                        startMain.addCategory(Intent.CATEGORY_HOME);
-                        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(startMain);
+                    if(runningTime > timeLimit) {
+                        ArrayList<String> details = new ArrayList<>();
+                        String time = "";
+                        long hrs = timeLimit/3600000, min = (timeLimit/60000)%60;
+                        if(hrs>0 && min>0) time = hrs + " h " + min + " m";
+                        else if(min==0) time = hrs + " h";
+                        else if(hrs==0) time = min + " m";
+                        details.add(time);
+                        details.add("You used all your time for " + getAppLable(context,runningApp) + ". You can use it again Tomorrow.");
+                        Intent dialogIntent = new Intent(context, TimeOverPromptActivity.class);
+                        dialogIntent.putExtra("AppName",details);
+                        dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(dialogIntent);
 
-                        am.killBackgroundProcesses(runningApp );
+                        am.killBackgroundProcesses(runningApp);
+                    }
+                    else {
+                        long hrs = timeLimit/3600000;
+                        for(long i = hrs; i>0; i--) {
+                            if(timeLimit-runningTime >= i*3600000 && timeLimit-runningTime <= i*3600000+3000) {
+                                createNotificationChannel();
+                                addNotification(timeLimit-runningTime, runningApp);
+                            }
+                        }
+                        if((timeLimit-runningTime >= 30*60*1000 && timeLimit-runningTime <= 30*60*1000+3000) || (timeLimit-runningTime >= 5*60*1000 && timeLimit-runningTime <= 5*60*1000+3000)) {
+                            createNotificationChannel();
+                            addNotification(timeLimit-runningTime, runningApp);
+                            Toast.makeText(context, "Check", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
                 handler.postDelayed(runnable, 1000);
@@ -165,5 +192,63 @@ public class BackgroundService extends Service {
         // this will add the present running time of the app
         runningTime += ( currTime - allEvents.get( allEvents.size()-1 ).getTimeStamp());
         return runningTime;
+    }
+
+    public void addNotification(long timeLeft, String packageName) {
+            long hrs = timeLeft/3600000, min = (timeLeft/60000)%60;
+            String time = "";
+            if(hrs>0 && min>0) time = hrs + " hours and " + min + "minutes";
+            else if(min==0) time = hrs + " hours";
+            else if(hrs==0) time = min + " minutes";
+            NotificationCompat.Builder builder =
+                    new NotificationCompat.Builder(this, "id")
+                            .setSmallIcon(R.drawable.ic_launcher_foreground) //set icon for notification
+                            .setContentTitle(getAppLable(this,packageName)+ " : " + time + " left") //set title of notification
+                            .setContentText("Tap to go to Apptracker")//this is notification message
+                            .setAutoCancel(true) // makes auto cancel of notification
+                            .setPriority(NotificationCompat.PRIORITY_DEFAULT); //set priority of notification
+
+
+            Intent notificationIntent = new Intent(this, MainActivity.class);
+            notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            //notification message will get at NotificationView
+            notificationIntent.putExtra("message", "This is a notification message");
+
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.setContentIntent(pendingIntent);
+
+            // Add as notification
+            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            manager.notify(0, builder.build());
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "AppTracker";
+            String description = "Description";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+
+            NotificationChannel channel = new NotificationChannel("id", name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    public String getAppLable(Context context, String packageName) {
+        PackageManager mPm = context.getPackageManager();
+        String label = packageName;
+        try {
+            ApplicationInfo appInfo = mPm.getApplicationInfo(packageName, 0);
+            label = mPm.getApplicationLabel(appInfo).toString();
+        } catch (Exception e) {
+            // This package may be gone.
+        }
+        return label;
     }
 }

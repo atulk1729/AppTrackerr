@@ -26,6 +26,7 @@
             android:enabled="true"
             android:exported="true"></service>
         <activity android:name=".LimitSetterActivity"></activity>
+        <activity android:name=".TimeOverPromptActivity" android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"></activity>
         <activity android:name=".AppSelectorActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>

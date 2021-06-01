@@ -2,11 +2,15 @@ package com.example.apptracker;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.TargetApi;
 import android.app.AppOpsManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.usage.UsageEvents;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
@@ -58,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
         //SYSTEM_EXIT_WINDOW Permission to get back to home screen from background service (For android 10 and higher)
         checkPermission();
+
 
         //Permission for UsageStats Manager
         if(checkForPermission(this)) checkForPermission(this);
