@@ -31,6 +31,7 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.ViewPortHandler;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class LimitSetterActivity extends AppCompatActivity {
     private String appPackageName;
     private BarChart barChart;
     private TimePicker timePicker;
-    private ToggleButton toggleButton;
+    private SwitchMaterial switchMaterial;
     private SharedPreferences sharedPreferences = null;
     private String MyPREFERENCES = "AppInfos";
 
@@ -62,7 +63,7 @@ public class LimitSetterActivity extends AppCompatActivity {
 
         timePicker = findViewById(R.id.timePicker);
         timePicker.setIs24HourView(true);
-        toggleButton = findViewById(R.id.toggleButton);
+        switchMaterial = findViewById(R.id.switchMaterial);
 
         sharedPreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
 
@@ -84,13 +85,13 @@ public class LimitSetterActivity extends AppCompatActivity {
                 timePicker.setCurrentMinute(minutes);
             }
             timePicker.setEnabled(false);
-            toggleButton.setChecked(true);
+            switchMaterial.setChecked(true);
         }
     }
 
-    public void onToggleClick(View v ) {
+    public void onSwitchClick(View v ) {
 
-        if( toggleButton.isChecked() ) {
+        if( switchMaterial.isChecked() ) {
             int hour;
             int minute;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {

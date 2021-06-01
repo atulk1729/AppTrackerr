@@ -40,11 +40,12 @@
                 android:layout_marginTop="10dp" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/limitButton"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
+                android:onClick="setLimitButton"
                 android:text="SET LIMIT"
-                android:id="@+id/limitButton"
-                android:onClick="setLimitButton"/>
+                app:cornerRadius="20dp" />
 
         </LinearLayout>
 
