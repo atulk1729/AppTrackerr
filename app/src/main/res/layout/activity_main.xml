@@ -5,49 +5,105 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="10dp"
     tools:context=".MainActivity">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Top 5 most used apps today"
+                android:textColor="#6F6D6D"
+                android:textStyle="normal"
+                android:textSize="30sp"
+                android:layout_marginLeft="15dp"
+                android:id="@+id/head_text"
+                android:layout_marginTop="10dp"/>
+
+            <View
+                android:layout_width="10dp"
+                android:layout_height="750dp"
+                android:id="@+id/trash_viewl"/>
+
+            <View
+                android:layout_width="10dp"
+                android:layout_height="750dp"
+                android:id="@+id/trash_viewr"
+                android:layout_alignParentRight="true"/>
+
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="500dp"
+                android:layout_height="wrap_content"
                 android:clickable="true"
                 android:focusable="true"
-                app:cardElevation="10dp">
+                app:cardElevation="10dp"
+                app:cardCornerRadius="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_below="@id/head_text"
+                android:id="@+id/top5_card"
+                android:layout_toRightOf="@id/trash_viewl"
+                android:layout_toLeftOf="@id/trash_viewr">
 
-                <com.github.mikephil.charting.charts.PieChart
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/main_pieChart"/>
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.github.mikephil.charting.charts.PieChart
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp"
+                        android:id="@+id/main_pieChart" />
 
 
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/appListRecView"
+                        android:layout_width="match_parent"
+                        android:layout_height="350dp"
+                        android:layout_marginTop="15dp"/>
+                </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/appListRecView"
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp" />
+                android:layout_below="@id/top5_card"
+                android:id="@+id/buttontext"
+                android:text="Goals"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="15dp"
+                android:textSize="25dp"/>
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/limitButton"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="60dp"
+                android:text="Set usage limit for apps"
+                android:id="@+id/limitButton"
                 android:onClick="setLimitButton"
-                android:text="SET LIMIT"
-                app:cornerRadius="20dp" />
+                android:layout_below="@id/buttontext"
+                android:layout_toRightOf="@id/trash_viewl"
+                android:layout_toLeftOf="@id/trash_viewr"
+                android:background="@drawable/rounded_button"
+                android:layout_marginTop="5dp"
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:textAlignment="viewStart"
+                app:backgroundTint="@color/cardview_dark_background"
+                android:textStyle="normal"/>
 
-        </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_below="@id/limitButton"/>
+
+        </RelativeLayout>
 
     </ScrollView>
 

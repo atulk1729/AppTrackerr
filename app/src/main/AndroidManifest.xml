@@ -25,9 +25,9 @@
             android:name=".BackgroundService"
             android:enabled="true"
             android:exported="true"></service>
-        <activity android:name=".LimitSetterActivity"></activity>
+        <activity android:name=".LimitSetterActivity" android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"></activity>
         <activity android:name=".TimeOverPromptActivity" android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"></activity>
-        <activity android:name=".AppSelectorActivity" />
+        <activity android:name=".AppSelectorActivity" android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
