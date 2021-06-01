@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -43,8 +44,7 @@ public class LimitSetterActivity extends AppCompatActivity {
 
     private String appPackageName;
     private BarChart barChart;
-    private EditText hoursEditText;
-    private EditText minutesEditText;
+    private TimePicker timePicker;
     private ToggleButton toggleButton;
     private SharedPreferences sharedPreferences = null;
     private String MyPREFERENCES = "AppInfos";
@@ -60,8 +60,8 @@ public class LimitSetterActivity extends AppCompatActivity {
         barChart = findViewById(R.id.verticalbarchart_chart);
         loadBarGraph(pastSevenDaysUse);
 
-        hoursEditText = findViewById(R.id.hoursEditText);
-        minutesEditText = findViewById(R.id.minutesEditText);
+        timePicker = findViewById(R.id.timePicker);
+        timePicker.setIs24HourView(true);
         toggleButton = findViewById(R.id.toggleButton);
 
         sharedPreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
@@ -75,56 +75,46 @@ public class LimitSetterActivity extends AppCompatActivity {
             long milli = sharedPreferences.getLong(appPackageName, 0);
             int hours = (int)(milli/3600000);
             int minutes = (int)((milli/60000) % 60);
-            hoursEditText.setText("" + hours);
-            minutesEditText.setText("" + minutes);
-            hoursEditText.setEnabled(false);
-            minutesEditText.setEnabled(false);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                timePicker.setHour(hours);
+                timePicker.setMinute(minutes);
+            }
+            else{
+                timePicker.setCurrentHour(hours);
+                timePicker.setCurrentMinute(minutes);
+            }
+            timePicker.setEnabled(false);
             toggleButton.setChecked(true);
         }
     }
 
-    public void onToggleClick( View v ) {
+    public void onToggleClick(View v ) {
 
         if( toggleButton.isChecked() ) {
-            if( checkValid() ) {
-                int hour = Integer.parseInt(hoursEditText.getText().toString());
-                int minute = Integer.parseInt(minutesEditText.getText().toString());
-                long milli = (hour * 60 + minute) * 60000;
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putLong(appPackageName, milli);
-                editor.apply();
-                hoursEditText.setEnabled(false);
-                minutesEditText.setEnabled(false);
-                Toast.makeText(this, "limit set successfully", Toast.LENGTH_LONG).show();
+            int hour;
+            int minute;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                hour = timePicker.getHour();
+                minute = timePicker.getMinute();
             }
+            else {
+                hour = timePicker.getCurrentHour();
+                minute = timePicker.getCurrentMinute();
+            }
+            long milli = (hour * 60 + minute) * 60000;
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putLong(appPackageName, milli);
+            editor.apply();
+            timePicker.setEnabled(false);
+            Toast.makeText(this, "limit set successfully", Toast.LENGTH_LONG).show();
         }
         else {
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.remove(appPackageName);
             editor.apply();
-            hoursEditText.setEnabled(true);
-            minutesEditText.setEnabled(true);
+            timePicker.setEnabled(true);
         }
 
-    }
-
-    public boolean checkValid() {
-        if( hoursEditText.getText().toString().equals("") || minutesEditText.getText().toString().equals("") ) {
-            Toast.makeText(this, "Enter value in the fields", Toast.LENGTH_LONG).show();
-            toggleButton.setChecked(false);
-            return false;
-        }
-        if( Integer.parseInt(hoursEditText.getText().toString()) > 23 ) {
-            Toast.makeText(this, "Enter value from 0 to 23 in the hours fields", Toast.LENGTH_LONG).show();
-            toggleButton.setChecked(false);
-            return false;
-        }
-        if( Integer.parseInt(minutesEditText.getText().toString()) > 59 ) {
-            Toast.makeText(this, "Enter value from 0 to 59 in the minutes fields", Toast.LENGTH_LONG).show();
-            toggleButton.setChecked(false);
-            return false;
-        }
-        return true;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -203,8 +193,9 @@ public class LimitSetterActivity extends AppCompatActivity {
                 runningTime += diff;
             }
         }
-        // this will add the present running time of the app
-        runningTime += ( currTime - allEvents.get( allEvents.size()-1 ).getTimeStamp());
+        if( allEvents.size() > 0 && allEvents.get(allEvents.size()-1).getEventType() == 1 ) {
+            runningTime += (currTime - allEvents.get(allEvents.size() - 1).getTimeStamp());
+        }
         return runningTime;
     }
 
