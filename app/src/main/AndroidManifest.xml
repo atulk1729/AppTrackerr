@@ -21,13 +21,27 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents.DayNight">
+
+        <receiver
+            android:name=".ServiceRestarterReceiver"
+            android:enabled="true"
+            android:exported="true"></receiver>
+
         <service
             android:name=".BackgroundService"
             android:enabled="true"
-            android:exported="true"></service>
-        <activity android:name=".LimitSetterActivity" android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"></activity>
-        <activity android:name=".TimeOverPromptActivity" android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"></activity>
-        <activity android:name=".AppSelectorActivity" android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
+            android:exported="true"
+            android:stopWithTask="false"/>
+
+        <activity
+            android:name=".LimitSetterActivity"
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
+        <activity
+            android:name=".TimeOverPromptActivity"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar" />
+        <activity
+            android:name=".AppSelectorActivity"
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

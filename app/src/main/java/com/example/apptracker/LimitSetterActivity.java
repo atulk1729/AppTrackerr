@@ -203,7 +203,7 @@ public class LimitSetterActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void loadBarGraph(ArrayList<Float> pastSevenDaysUse) {
         Calendar calendar = Calendar.getInstance();
-        int day = calendar.get(Calendar.DAY_OF_WEEK)-1;
+        int day = calendar.get(Calendar.DAY_OF_WEEK);
         String[] days = new String[] { "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT" };
 
         ArrayList<BarEntry> entries = new ArrayList<>();
@@ -223,9 +223,7 @@ public class LimitSetterActivity extends AppCompatActivity {
             xAxisLabel.add(days[day]);
             day++;
         }
-        Collections.reverse(xAxisLabel);
         XAxis xAxis = barChart.getXAxis();
-        xAxis.setAxisMinimum(0);
         xAxis.setValueFormatter(new ValueFormatter(){
             public String getFormattedValue(float value) {
                 if( value > 0 && value <= 7 ) return xAxisLabel.get((int)value-1);

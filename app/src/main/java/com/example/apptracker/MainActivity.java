@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.TargetApi;
+import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -53,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
     private MaterialButton limitButton;
     protected ArrayList<AppInfo> appInfos = new ArrayList<AppInfo>();
     private PieChart pieChart;
+    private BackgroundService backgroundService;
+    private Intent backgroundServiceIntent;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -86,11 +89,24 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         //Background service to detect apps from background(When AppTracker is closed)
-        Intent backgroundService = new Intent(getApplicationContext(),BackgroundService.class);
-        startService(backgroundService);
+        backgroundService = new BackgroundService();
+        backgroundServiceIntent = new Intent(getApplicationContext(),backgroundService.getClass());
+        if (!isMyServiceRunning(backgroundService.getClass())) {
+            startService(backgroundServiceIntent);
+        }
 
         setupPieChart();
         loadPieChartData();
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void setupPieChart() {
@@ -277,5 +293,11 @@ public class MainActivity extends AppCompatActivity {
         //transferred final data into modal class object
         appInfos = new ArrayList<>(map.values());
 
+    }
+
+    protected void onDestroy() {
+        Toast.makeText(this, "service stopped by main", Toast.LENGTH_LONG).show();
+        stopService(backgroundServiceIntent);
+        super.onDestroy();
     }
 }

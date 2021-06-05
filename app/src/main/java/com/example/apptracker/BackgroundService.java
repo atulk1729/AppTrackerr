@@ -1,6 +1,7 @@
 package com.example.apptracker;
 
 import android.app.ActivityManager;
+import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -12,6 +13,7 @@ import android.content.*;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.*;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
@@ -46,11 +48,44 @@ public class BackgroundService extends Service {
     public void onCreate() {
         Toast.makeText(this, "Service created!", Toast.LENGTH_LONG).show();
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        startServiceWork();
+    }
 
+    @Override
+    public void onDestroy() {
+        Toast.makeText(this, "Service stopped", Toast.LENGTH_LONG).show();
+        super.onDestroy();
+        handler.removeCallbacks(runnable);
+        Intent broadcastIntent = new Intent(this, ServiceRestarterReceiver.class);
+        sendBroadcast(broadcastIntent);
+    }
+
+    public void onTaskRemoved(Intent rootIntent){
+        handler.removeCallbacks(runnable);
+        Intent restartServiceIntent = new Intent(getApplicationContext(), this.getClass());
+        restartServiceIntent.setPackage(getPackageName());
+
+        PendingIntent restartServicePendingIntent = PendingIntent.getService(getApplicationContext(), 1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
+        AlarmManager alarmService = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+        alarmService.set(
+                AlarmManager.ELAPSED_REALTIME,
+                SystemClock.elapsedRealtime() + 1000,
+                restartServicePendingIntent);
+        super.onTaskRemoved(rootIntent);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startid) {
+        super.onStartCommand(intent, flags, startid);
+        Toast.makeText(this, "Service started by user.", Toast.LENGTH_LONG).show();
+        return START_STICKY;
+    }
+
+    private void startServiceWork() {
         handler = new Handler();
 
-
         runnable = new Runnable() {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             public void run() {
                 ActivityManager am=(ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
                 String runningApp = retriveNewApp();
@@ -96,26 +131,11 @@ public class BackgroundService extends Service {
                     }
                 }
                 handler.postDelayed(runnable, 1000);
-
-
             }
         };
 
         handler.postDelayed(runnable, 1500);
     }
-
-    @Override
-    public void onDestroy() {
-        /* IF YOU WANT THIS SERVICE KILLED WITH THE APP THEN UNCOMMENT THE FOLLOWING LINE */
-        //handler.removeCallbacks(runnable);
-        Toast.makeText(this, "Service stopped", Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onStart(Intent intent, int startid) {
-        Toast.makeText(this, "Service started by user.", Toast.LENGTH_LONG).show();
-    }
-
     // Returns the package name of app currently on screen
     private String retriveNewApp() {
         if (Build.VERSION.SDK_INT >= 21) {
