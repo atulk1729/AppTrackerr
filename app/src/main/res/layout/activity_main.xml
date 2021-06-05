@@ -51,23 +51,43 @@
                 android:layout_toRightOf="@id/trash_viewl"
                 android:layout_toLeftOf="@id/trash_viewr">
 
-                <LinearLayout
+                <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="5 h 30 m"
+                        android:id="@+id/total_time"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="5dp"
+                        android:textSize="25dp"
+                        android:textStyle="bold|italic"
+                        android:textColor="#00FF00"/>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@id/total_time"
+                        android:background="#DADADA"/>
+
                     <com.github.mikephil.charting.charts.PieChart
                         android:layout_width="match_parent"
                         android:layout_height="300dp"
-                        android:id="@+id/main_pieChart" />
+                        android:id="@+id/main_pieChart"
+                        android:layout_below="@id/total_time"
+                        android:layout_marginTop="10dp"/>
 
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/appListRecView"
                         android:layout_width="match_parent"
-                        android:layout_height="350dp"
-                        android:layout_marginTop="15dp"/>
-                </LinearLayout>
+                        android:layout_height="355dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_below="@id/main_pieChart"/>
+                </RelativeLayout>
 
             </androidx.cardview.widget.CardView>
 

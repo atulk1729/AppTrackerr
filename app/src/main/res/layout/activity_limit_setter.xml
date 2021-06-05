@@ -11,72 +11,122 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="8dp">
+            android:orientation="vertical">
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:id="@+id/barGraphCard">
+                android:layout_height="350dp"
+                android:id="@+id/barGraphCard"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp">
 
-                <com.github.mikephil.charting.charts.BarChart
-                    android:id="@+id/verticalbarchart_chart"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Past 7 days usage graph"
+                        android:textSize="20dp"
+                        android:textColor="#989797"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="10dp"
+                        android:textStyle="bold"/>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#DADADA"
+                        android:layout_marginTop="5dp"/>
+
+                    <com.github.mikephil.charting.charts.BarChart
+                        android:id="@+id/verticalbarchart_chart"
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp"
+                        android:layout_marginTop="5dp"/>
+
+                </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <androidx.cardview.widget.CardView
+                android:id="@+id/timepickerCard"
                 android:layout_width="match_parent"
-                android:layout_height="400dp">
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="20dp"
+                android:layout_marginTop="10dp"
+                app:cardElevation="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="onCardClicked"
+                android:layout_below="@id/barGraphCard"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginBottom="10dp">
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/materialTextView"
+                <TextView
+                    android:id="@+id/limit_description"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="30dp"
-                    android:textColor="@color/black"
-                    android:padding="15dp"
-                    android:text="Enter the limit"
-                    android:textSize="25sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:textStyle="bold" />
+                    android:text="Set limit for this app"
+                    android:textColor="#989797"
+                    android:textSize="20dp"
+                    android:layout_marginLeft="12dp"
+                    android:padding="10dp"
+                    android:textStyle="bold"/>
 
-
-                <TimePicker
-                    android:id="@+id/timePicker"
-                    android:layout_width="wrap_content"
+                <RelativeLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="30dp"
-                    android:timePickerMode="spinner"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.496"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/materialTextView"
-                    android:background="@color/cardview_shadow_start_color" />
+                    android:id="@+id/time_picker_relayout"
+                    android:visibility="gone">
 
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/switchMaterial"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="Activate   "
-                    android:textSize="20sp"
-                    android:textStyle="bold|italic"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/timePicker"
-                    android:onClick="onSwitchClick"/>
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/materialTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:textColor="#989797"
+                        android:text="Set limit for this app"
+                        android:textSize="25sp"
+                        android:layout_centerHorizontal="true"/>
 
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                    <TimePicker
+                        android:id="@+id/timePicker"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:timePickerMode="spinner"
+                        android:background="@color/cardview_shadow_start_color"
+                        android:layout_below="@id/materialTextView"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="10dp"/>
 
-        </LinearLayout>
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchMaterial"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Activate   "
+                        android:textSize="12sp"
+                        android:textStyle="italic"
+                        android:onClick="onSwitchClick"
+                        android:layout_below="@id/timePicker"
+                        android:layout_centerHorizontal="true"/>
+
+
+                </RelativeLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </RelativeLayout>
 
     </ScrollView>
 
