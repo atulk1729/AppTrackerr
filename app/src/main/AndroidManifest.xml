@@ -25,13 +25,16 @@
         <receiver
             android:name=".ServiceRestarterReceiver"
             android:enabled="true"
-            android:exported="true"></receiver>
+            android:exported="true">
+            <intent-filter>
+                <action android:name="restartservice" />
+            </intent-filter>
+        </receiver>
 
         <service
             android:name=".BackgroundService"
             android:enabled="true"
-            android:exported="true"
-            android:stopWithTask="false"/>
+            android:exported="true" />
 
         <activity
             android:name=".LimitSetterActivity"

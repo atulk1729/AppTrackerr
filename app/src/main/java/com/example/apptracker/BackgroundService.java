@@ -2,6 +2,7 @@ package com.example.apptracker;
 
 import android.app.ActivityManager;
 import android.app.AlarmManager;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -12,6 +13,7 @@ import android.app.usage.UsageStatsManager;
 import android.content.*;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.*;
 import android.util.Log;
 import android.widget.Toast;
@@ -46,9 +48,35 @@ public class BackgroundService extends Service {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onCreate() {
+        super.onCreate();
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O)
+            startMyOwnForeground();
+        else
+            startForeground(1, new Notification());
         Toast.makeText(this, "Service created!", Toast.LENGTH_LONG).show();
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-        startServiceWork();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void startMyOwnForeground()
+    {
+        String NOTIFICATION_CHANNEL_ID = "example.permanence";
+        String channelName = "Background Service";
+        NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
+        chan.setLightColor(Color.BLUE);
+        chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        assert manager != null;
+        manager.createNotificationChannel(chan);
+
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
+        Notification notification = notificationBuilder.setOngoing(true)
+                .setContentTitle("App is running in background")
+                .setPriority(NotificationManager.IMPORTANCE_MIN)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .build();
+        startForeground(2, notification);
     }
 
     @Override
@@ -56,11 +84,13 @@ public class BackgroundService extends Service {
         Toast.makeText(this, "Service stopped", Toast.LENGTH_LONG).show();
         super.onDestroy();
         handler.removeCallbacks(runnable);
-        Intent broadcastIntent = new Intent(this, ServiceRestarterReceiver.class);
-        sendBroadcast(broadcastIntent);
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction("restartservice");
+        broadcastIntent.setClass(this, ServiceRestarterReceiver.class);
+        this.sendBroadcast(broadcastIntent);
     }
 
-    public void onTaskRemoved(Intent rootIntent){
+    /*public void onTaskRemoved(Intent rootIntent){
         handler.removeCallbacks(runnable);
         Intent restartServiceIntent = new Intent(getApplicationContext(), this.getClass());
         restartServiceIntent.setPackage(getPackageName());
@@ -72,12 +102,13 @@ public class BackgroundService extends Service {
                 SystemClock.elapsedRealtime() + 1000,
                 restartServicePendingIntent);
         super.onTaskRemoved(rootIntent);
-    }
+    }*/
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startid) {
         super.onStartCommand(intent, flags, startid);
         Toast.makeText(this, "Service started by user.", Toast.LENGTH_LONG).show();
+        startServiceWork();
         return START_STICKY;
     }
 

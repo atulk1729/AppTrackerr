@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Background service to detect apps from background(When AppTracker is closed)
         backgroundService = new BackgroundService();
-        backgroundServiceIntent = new Intent(getApplicationContext(),backgroundService.getClass());
+        backgroundServiceIntent = new Intent(this,backgroundService.getClass());
         if (!isMyServiceRunning(backgroundService.getClass())) {
             startService(backgroundServiceIntent);
         }
@@ -311,7 +311,10 @@ public class MainActivity extends AppCompatActivity {
 
     protected void onDestroy() {
         Toast.makeText(this, "service stopped by main", Toast.LENGTH_LONG).show();
-        stopService(backgroundServiceIntent);
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction("restartservice");
+        broadcastIntent.setClass(this, ServiceRestarterReceiver.class);
+        this.sendBroadcast(broadcastIntent);
         super.onDestroy();
     }
 }
