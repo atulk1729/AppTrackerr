@@ -3,6 +3,8 @@ package com.example.apptracker;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.app.usage.UsageEvents;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
@@ -13,7 +15,9 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.Animation;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -49,6 +53,8 @@ public class LimitSetterActivity extends AppCompatActivity {
     private SwitchMaterial switchMaterial;
     private SharedPreferences sharedPreferences = null;
     private String MyPREFERENCES = "AppInfos";
+    private RelativeLayout relativeLayout;
+    private TextView description;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -60,6 +66,9 @@ public class LimitSetterActivity extends AppCompatActivity {
         ArrayList<Float> pastSevenDaysUse = this.getWeekData(appPackageName);
         barChart = findViewById(R.id.verticalbarchart_chart);
         loadBarGraph(pastSevenDaysUse);
+
+        relativeLayout = findViewById(R.id.time_picker_relayout);
+        description = findViewById(R.id.limit_description);
 
         timePicker = findViewById(R.id.timePicker);
         timePicker.setIs24HourView(true);
@@ -86,6 +95,19 @@ public class LimitSetterActivity extends AppCompatActivity {
             }
             timePicker.setEnabled(false);
             switchMaterial.setChecked(true);
+        }
+    }
+
+    // For expanding and collapsing set limit card
+    public void onCardClicked(View v) {
+        if (relativeLayout.getVisibility() == View.GONE) {
+            // it's collapsed - expand it
+            relativeLayout.setVisibility(View.VISIBLE);
+            description.setVisibility(View.GONE);
+        } else {
+            // it's expanded - collapse it
+            relativeLayout.setVisibility(View.GONE);
+            description.setVisibility(View.VISIBLE);
         }
     }
 
@@ -218,6 +240,7 @@ public class LimitSetterActivity extends AppCompatActivity {
         BarData barData = new BarData(barDataSet);
 
         ArrayList<String> xAxisLabel = new ArrayList<>();
+        day++;
         for( int i = 0; i < 7; i++ ) {
             day = day % 7;
             xAxisLabel.add(days[day]);

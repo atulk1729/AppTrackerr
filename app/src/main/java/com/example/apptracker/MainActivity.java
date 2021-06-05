@@ -1,5 +1,6 @@
 package com.example.apptracker;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
@@ -27,6 +28,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.Settings;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.PieChart;
@@ -54,8 +56,12 @@ public class MainActivity extends AppCompatActivity {
     private MaterialButton limitButton;
     protected ArrayList<AppInfo> appInfos = new ArrayList<AppInfo>();
     private PieChart pieChart;
+
     private BackgroundService backgroundService;
     private Intent backgroundServiceIntent;
+
+    private long totalTime = 0;
+    private TextView txtTime;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -71,16 +77,13 @@ public class MainActivity extends AppCompatActivity {
         if(checkForPermission(this)) checkForPermission(this);
         getUsageStatistics();
 
-        Collections.sort(appInfos, new Comparator<AppInfo>() {
-            @Override
-            public int compare(AppInfo o1, AppInfo o2) {
-                if(o1.getMillis()<o2.getMillis())
-                    return 1;
-                else if(o1.getMillis()==o2.getMillis())
-                    return 0;
-                else return -1;
-            }
-        });
+        txtTime = findViewById(R.id.total_time);
+        long hrs = totalTime/3600000, min = (totalTime/60000)%60;
+        if(hrs==0) txtTime.setText(min + " m");
+        else txtTime.setText(hrs + " h " + min + " m");
+        if(hrs>=6) txtTime.setTextColor(Color.rgb(255,0,0));
+        else if(hrs>=4) txtTime.setTextColor(Color.rgb(255,150,0));
+        else if(hrs>=2) txtTime.setTextColor(Color.rgb(255,220,0));
 
         pieChart = findViewById(R.id.main_pieChart);
         RecyclerView recyclerView = findViewById(R.id.appListRecView);
@@ -164,17 +167,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        recreate();
 
         if (requestCode == ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE) {
             if (!Settings.canDrawOverlays(this)) {
                 // You don't have permission
                 checkPermission();
-            } else {
-
             }
-
         }
-
 
         //Background service to detect apps from background(When AppTracker is closed)
         Intent backgroundService = new Intent(getApplicationContext(),BackgroundService.class);
@@ -287,11 +287,25 @@ public class MainActivity extends AppCompatActivity {
                 long diff = E.getTimeStamp() - lasttime;
                 if(lasttime==-1L) diff = E.getTimeStamp() - startTime;
                 map.get(E.getPackageName()).millis+=diff;
+                if(!E.getPackageName().equals("com.example.apptracker")) totalTime+=diff;
                 flag.put(E.getPackageName(),E.getTimeStamp());
             }
         }
+
+        if(map.containsKey("com.example.apptracker")) map.remove("com.example.apptracker");
         //transferred final data into modal class object
         appInfos = new ArrayList<>(map.values());
+
+        Collections.sort(appInfos, new Comparator<AppInfo>() {
+            @Override
+            public int compare(AppInfo o1, AppInfo o2) {
+                if(o1.getMillis()<o2.getMillis())
+                    return 1;
+                else if(o1.getMillis()==o2.getMillis())
+                    return 0;
+                else return -1;
+            }
+        });
 
     }
 
