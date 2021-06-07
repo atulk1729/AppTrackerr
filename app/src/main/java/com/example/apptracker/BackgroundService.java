@@ -53,7 +53,6 @@ public class BackgroundService extends Service {
             startMyOwnForeground();
         else
             startForeground(1, new Notification());
-        Toast.makeText(this, "Service created!", Toast.LENGTH_LONG).show();
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
     }
 
@@ -81,7 +80,6 @@ public class BackgroundService extends Service {
 
     @Override
     public void onDestroy() {
-        Toast.makeText(this, "Service stopped", Toast.LENGTH_LONG).show();
         super.onDestroy();
         handler.removeCallbacks(runnable);
         Intent broadcastIntent = new Intent();
@@ -90,24 +88,9 @@ public class BackgroundService extends Service {
         this.sendBroadcast(broadcastIntent);
     }
 
-    /*public void onTaskRemoved(Intent rootIntent){
-        handler.removeCallbacks(runnable);
-        Intent restartServiceIntent = new Intent(getApplicationContext(), this.getClass());
-        restartServiceIntent.setPackage(getPackageName());
-
-        PendingIntent restartServicePendingIntent = PendingIntent.getService(getApplicationContext(), 1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
-        AlarmManager alarmService = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-        alarmService.set(
-                AlarmManager.ELAPSED_REALTIME,
-                SystemClock.elapsedRealtime() + 1000,
-                restartServicePendingIntent);
-        super.onTaskRemoved(rootIntent);
-    }*/
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startid) {
         super.onStartCommand(intent, flags, startid);
-        Toast.makeText(this, "Service started by user.", Toast.LENGTH_LONG).show();
         startServiceWork();
         return START_STICKY;
     }
@@ -157,7 +140,6 @@ public class BackgroundService extends Service {
                         if((timeLimit-runningTime >= 30*60*1000 && timeLimit-runningTime <= 30*60*1000+3000) || (timeLimit-runningTime >= 5*60*1000 && timeLimit-runningTime <= 5*60*1000+3000)) {
                             createNotificationChannel();
                             addNotification(timeLimit-runningTime, runningApp);
-                            Toast.makeText(context, "Check", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
