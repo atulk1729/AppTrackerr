@@ -38,6 +38,7 @@ import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -55,6 +56,8 @@ public class LimitSetterActivity extends AppCompatActivity {
     private String MyPREFERENCES = "AppInfos";
     private RelativeLayout relativeLayout;
     private TextView description;
+    private TextView timeused;
+    private long LongTime=0;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -76,6 +79,7 @@ public class LimitSetterActivity extends AppCompatActivity {
 
         sharedPreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
 
+        setTimeText(appPackageName);
     }
 
     protected void onResume() {
@@ -95,6 +99,16 @@ public class LimitSetterActivity extends AppCompatActivity {
             }
             timePicker.setEnabled(false);
             switchMaterial.setChecked(true);
+        }
+        else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                timePicker.setHour(0);
+                timePicker.setMinute(0);
+            }
+            else{
+                timePicker.setCurrentHour(0);
+                timePicker.setCurrentMinute(0);
+            }
         }
     }
 
@@ -129,13 +143,15 @@ public class LimitSetterActivity extends AppCompatActivity {
             editor.putLong(appPackageName, milli);
             editor.apply();
             timePicker.setEnabled(false);
-            Toast.makeText(this, "limit set successfully", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Limit set successfully", Toast.LENGTH_LONG).show();
+            setTimeText(appPackageName);
         }
         else {
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.remove(appPackageName);
             editor.apply();
             timePicker.setEnabled(true);
+            setTimeText(appPackageName);
         }
 
     }
@@ -164,10 +180,12 @@ public class LimitSetterActivity extends AppCompatActivity {
         calendar.set(Calendar.MILLISECOND, 0);
         long start = calendar.getTimeInMillis();
         long end = System.currentTimeMillis();
-        float time = (float) getRunningTime(packageName,start,end)/3600000;
-        //totalTime+=time;
+        long longTime = getRunningTime(packageName,start,end);
+        float time = (float) longTime/3600000;
+
+        LongTime = longTime;
+
         timeOfSevenDays.add(time);
-        //timeOfSevenDays.add(totalTime);
         return timeOfSevenDays;
     }
 
@@ -203,6 +221,8 @@ public class LimitSetterActivity extends AppCompatActivity {
             }
         }
 
+        //if app was being used during the transition from one day to another
+        if(allEvents.get(0).getEventType()==2) runningTime+=allEvents.get(0).getTimeStamp()-startTime;
         //iterating through the arraylist
         for (int i=0;i<allEvents.size()-1;i++){
             UsageEvents.Event E0=allEvents.get(i);
@@ -258,5 +278,39 @@ public class LimitSetterActivity extends AppCompatActivity {
         barChart.setFitBars(true);
         barChart.animateY(2000);
         barChart.invalidate();
+    }
+
+    public void setTimeText(String appPackageName) {
+        timeused = findViewById(R.id.timeusedBytimelimit);
+        String message = "Used ";
+        long Hrs = LongTime/3600000, Min = (LongTime/60000)%60;
+        if(Hrs!=0L && Min!=0L) {
+            message += Hrs + " h " + Min + " m ";
+        }
+        else if(Hrs==0L) {
+            message += Min + " m ";
+        }
+        else if(Min==0L) {
+            message += Hrs + " h ";
+        }
+        if(sharedPreferences.contains(appPackageName)) {
+            message += "out of ";
+            long milli = sharedPreferences.getLong(appPackageName, 0);
+            int hours = (int)(milli/3600000);
+            int minutes = (int)((milli/60000) % 60);
+            if(hours!=0L && minutes!=0L) {
+                message += hours + " h " + minutes + " m ";
+            }
+            else if(hours==0) {
+                message += minutes + " m ";
+            }
+            else if(minutes==0) {
+                message += hours + " h ";
+            }
+            if(milli < LongTime) timeused.setTextColor(Color.RED);
+        }
+        else timeused.setTextColor(Color.rgb(152,151,151));
+        message += "today";
+        timeused.setText(message);
     }
 }

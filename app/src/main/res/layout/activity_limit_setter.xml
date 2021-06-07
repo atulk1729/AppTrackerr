@@ -16,6 +16,16 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/timeusedBytimelimit"
+                android:text="2 h 30 m used out of 5 h 30 m"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="27dp"
+                android:textSize="22dp"
+                android:textColor="#989797"/>
+
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="350dp"
@@ -24,7 +34,8 @@
                 app:cardElevation="10dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp">
+                android:layout_marginRight="8dp"
+                android:layout_below="@+id/timeusedBytimelimit">
 
                 <LinearLayout
                     android:layout_width="match_parent"
