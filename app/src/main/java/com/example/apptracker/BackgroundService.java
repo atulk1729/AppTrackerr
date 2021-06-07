@@ -227,6 +227,7 @@ public class BackgroundService extends Service {
             }
         }
 
+        if(allEvents.get(0).getEventType()==2) runningTime+=allEvents.get(0).getTimeStamp()-startTime;
         //iterating through the arraylist
         for (int i=0;i<allEvents.size()-1;i++){
             UsageEvents.Event E0=allEvents.get(i);
@@ -253,17 +254,13 @@ public class BackgroundService extends Service {
             else if(hrs==0) time = min + " minutes";
             NotificationCompat.Builder builder =
                     new NotificationCompat.Builder(this, "id")
-                            .setSmallIcon(R.drawable.ic_launcher_foreground) //set icon for notification
+                            .setSmallIcon(R.mipmap.ic_launcher_round) //set icon for notification
                             .setContentTitle(getAppLable(this,packageName)+ " : " + time + " left") //set title of notification
                             .setContentText("Tap to go to Apptracker")//this is notification message
-                            .setAutoCancel(true) // makes auto cancel of notification
                             .setPriority(NotificationCompat.PRIORITY_DEFAULT); //set priority of notification
-
 
             Intent notificationIntent = new Intent(this, MainActivity.class);
             notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            //notification message will get at NotificationView
-            notificationIntent.putExtra("message", "This is a notification message");
 
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
@@ -275,8 +272,6 @@ public class BackgroundService extends Service {
     }
 
     private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "AppTracker";
             String description = "Description";
@@ -284,8 +279,6 @@ public class BackgroundService extends Service {
 
             NotificationChannel channel = new NotificationChannel("id", name, importance);
             channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }

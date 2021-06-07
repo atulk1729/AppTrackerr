@@ -13,6 +13,7 @@
     <uses-permission
         android:name="android.permission.SYSTEM_ALERT_WINDOW"
         tools:ignore="QueryAllPackagesPermission" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
         android:allowBackup="true"

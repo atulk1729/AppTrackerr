@@ -240,7 +240,6 @@ public class LimitSetterActivity extends AppCompatActivity {
         BarData barData = new BarData(barDataSet);
 
         ArrayList<String> xAxisLabel = new ArrayList<>();
-        day++;
         for( int i = 0; i < 7; i++ ) {
             day = day % 7;
             xAxisLabel.add(days[day]);
