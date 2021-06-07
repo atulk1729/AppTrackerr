@@ -11,7 +11,6 @@ public class ServiceRestarterReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Toast.makeText(context, "service restarted", Toast.LENGTH_LONG).show();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(new Intent(context, BackgroundService.class));
         } else {

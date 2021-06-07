@@ -310,7 +310,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void onDestroy() {
-        Toast.makeText(this, "service stopped by main", Toast.LENGTH_LONG).show();
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction("restartservice");
         broadcastIntent.setClass(this, ServiceRestarterReceiver.class);

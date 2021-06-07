@@ -116,7 +116,8 @@
                 android:textSize="16sp"
                 android:textAlignment="viewStart"
                 app:backgroundTint="@color/cardview_dark_background"
-                android:textStyle="normal"/>
+                android:textStyle="normal"
+                android:textColor="@color/white"/>
 
             <View
                 android:layout_width="match_parent"
