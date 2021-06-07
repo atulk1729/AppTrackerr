@@ -222,7 +222,8 @@ public class LimitSetterActivity extends AppCompatActivity {
         }
 
         //if app was being used during the transition from one day to another
-        if(allEvents.get(0).getEventType()==2) runningTime+=allEvents.get(0).getTimeStamp()-startTime;
+        if(!allEvents.isEmpty() && allEvents.get(0).getEventType()==2) runningTime+=allEvents.get(0).getTimeStamp()-startTime;
+
         //iterating through the arraylist
         for (int i=0;i<allEvents.size()-1;i++){
             UsageEvents.Event E0=allEvents.get(i);
