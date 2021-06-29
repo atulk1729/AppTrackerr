@@ -1,4 +1,4 @@
-package com.example.apptracker;
+package com.example.apptracker.appselector;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -9,6 +9,10 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+
+import com.example.apptracker.apprecyclerview.AppInfo;
+import com.example.apptracker.apprecyclerview.AppSelectorAdapter;
+import com.example.apptracker.R;
 
 import java.util.ArrayList;
 

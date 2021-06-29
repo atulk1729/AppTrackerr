@@ -1,11 +1,8 @@
-package com.example.apptracker;
+package com.example.apptracker.apprecyclerview;
 
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import java.io.Serializable;
-import java.util.concurrent.TimeUnit;
 
 public class AppInfo implements Parcelable {
 

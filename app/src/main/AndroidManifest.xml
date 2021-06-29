@@ -26,7 +26,7 @@
         android:theme="@style/Theme.AppTracker">
 
         <receiver
-            android:name=".ServiceRestarterReceiver"
+            android:name=".background.ServiceRestarterReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -37,18 +37,18 @@
         </receiver>
 
         <service
-            android:name=".BackgroundService"
+            android:name=".background.BackgroundService"
             android:enabled="true"
             android:exported="true" />
 
         <activity
-            android:name=".LimitSetterActivity"
+            android:name=".limitsetter.LimitSetterActivity"
             android:theme="@style/Theme.AppTracker.NoActionBar" />
         <activity
-            android:name=".TimeOverPromptActivity"
+            android:name=".background.TimeOverPromptActivity"
             android:theme="@style/Theme.AppTracker.NoActionBar" />
         <activity
-            android:name=".AppSelectorActivity"
+            android:name=".appselector.AppSelectorActivity"
             android:theme="@style/Theme.AppTracker.NoActionBar" />
         <activity android:name=".MainActivity">
             <intent-filter>

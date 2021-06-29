@@ -1,5 +1,6 @@
-package com.example.apptracker;
+package com.example.apptracker.limitsetter;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,6 +10,7 @@ import android.app.usage.UsageEvents;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -23,6 +25,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.example.apptracker.R;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -236,9 +239,6 @@ public class LimitSetterActivity extends AppCompatActivity {
                 long diff = E1.getTimeStamp()-E0.getTimeStamp();
                 runningTime += diff;
             }
-        }
-        if( allEvents.size() > 0 && allEvents.get(allEvents.size()-1).getEventType() == 1 ) {
-            runningTime += (currTime - allEvents.get(allEvents.size() - 1).getTimeStamp());
         }
         return runningTime;
     }

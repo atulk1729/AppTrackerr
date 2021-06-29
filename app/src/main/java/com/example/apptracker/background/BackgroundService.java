@@ -1,7 +1,6 @@
-package com.example.apptracker;
+package com.example.apptracker.background;
 
 import android.app.ActivityManager;
-import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -15,17 +14,17 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.*;
-import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
+import com.example.apptracker.apprecyclerview.AppInfo;
+import com.example.apptracker.MainActivity;
+import com.example.apptracker.R;
+
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -149,6 +148,7 @@ public class BackgroundService extends Service {
 
         handler.postDelayed(runnable, 1500);
     }
+
     // Returns the package name of app currently on screen
     private String retriveNewApp() {
         if (Build.VERSION.SDK_INT >= 21) {
@@ -177,6 +177,7 @@ public class BackgroundService extends Service {
         }
     }
 
+    // returns the total running time of app today
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     long getRunningTime( String runningApp ) {
 
@@ -199,7 +200,6 @@ public class BackgroundService extends Service {
         assert mUsageStatsManager != null;
         UsageEvents usageEvents = mUsageStatsManager.queryEvents(startTime, currTime);
 
-        //capturing all events in a array to compare with next element
         while (usageEvents.hasNextEvent()) {
             currentEvent = new UsageEvents.Event();
             usageEvents.getNextEvent(currentEvent);
@@ -209,25 +209,22 @@ public class BackgroundService extends Service {
             }
         }
 
-        if(allEvents.get(0).getEventType()==2) runningTime+=allEvents.get(0).getTimeStamp()-startTime;
-        //iterating through the arraylist
+        if(!allEvents.isEmpty() && allEvents.get(0).getEventType()==2) runningTime+=allEvents.get(0).getTimeStamp()-startTime;
         for (int i=0;i<allEvents.size()-1;i++){
             UsageEvents.Event E0=allEvents.get(i);
             UsageEvents.Event E1=allEvents.get(i+1);
 
-
-            //for UsageTime of apps in time range
             if (E0.getEventType()==1 && E1.getEventType()==2
                     && E0.getClassName().equals(E1.getClassName())){
                 long diff = E1.getTimeStamp()-E0.getTimeStamp();
                 runningTime += diff;
             }
         }
-        // this will add the present running time of the app
         runningTime += ( currTime - allEvents.get( allEvents.size()-1 ).getTimeStamp());
         return runningTime;
     }
 
+    // starts notification when a certain time usage is reached
     public void addNotification(long timeLeft, String packageName) {
             long hrs = timeLeft/3600000, min = (timeLeft/60000)%60;
             String time = "";

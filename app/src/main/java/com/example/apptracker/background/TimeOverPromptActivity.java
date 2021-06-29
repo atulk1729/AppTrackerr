@@ -1,4 +1,4 @@
-package com.example.apptracker;
+package com.example.apptracker.background;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+
+import com.example.apptracker.MainActivity;
+import com.example.apptracker.R;
 
 import java.util.ArrayList;
 

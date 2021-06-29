@@ -1,11 +1,11 @@
-package com.example.apptracker;
+package com.example.apptracker.background;
 
-import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.widget.Toast;
+
+import com.example.apptracker.background.BackgroundService;
 
 public class ServiceRestarterReceiver extends BroadcastReceiver {
 
